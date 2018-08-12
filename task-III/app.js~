@@ -1,0 +1,432 @@
+  var app = angular.module("myapp", ["ngRoute"]);
+  app.service('logService', function() {
+
+      var logs = [];
+      var incr2 = (function() {
+          var i = 1;
+          return function() {
+              return i++;
+          }
+      })();
+
+
+      logs.setter = function(newValue) {
+          newValue.id = incr2();
+          var today = newValue.issueDate;
+          newValue.issueDate = today.getDate() + "/" + (today.getMonth() + 1) + "/" + today.getFullYear();
+          var afterDate = newValue.returnDate;
+          newValue.returnDate = afterDate.getDate() + "/" + (afterDate.getMonth() + 1) + "/" + afterDate.getFullYear();
+          console.log(newValue);
+          logs.push(newValue);
+      }
+      logs.getter = function() {
+          return logs;
+      }
+      return logs;
+
+  });
+  app.service('bookService', function() {
+      var theValue = [{
+              "isbnNo": "978-0641723445",
+              "id": "1",
+              "name": "The Lightning Thief",
+              "author": "Rick Riordan",
+              "publisher": "Rick Riordan",
+              "quantity": 5
+          },
+          {
+              "isbnNo": "978-1423103349",
+              "id": 2,
+              "name": "The Sea of Monsters",
+              "author": "Rick Riordan",
+              "publisher": "Rick Riordan",
+              "quantity": 6
+          },
+          {
+              "isbnNo": "978-1857995879",
+              "id": "3",
+              "name": "Sophie's World : The Greek Philosophers",
+              "author": "Jostein Gaarder",
+              "publisher": "Rick Riordan",
+              "quantity": 7
+          },
+          {
+              "isbnNo": "978-1933988177",
+              "id": "4",
+              "name": "Lucene in Action, Second Edition",
+              "author": "Michael McCandless",
+              "publisher": "Jostein Gaarder",
+              "quantity": 10
+          }
+      ];
+      var incr = (function() {
+          var i = 5;
+          return function() {
+              return i++;
+          }
+      })();
+      theValue.setter = function(newValue) {
+          newValue.id = incr();
+          theValue.push(newValue);
+          console.log(newValue);
+
+      }
+      theValue.getter = function() {
+          return theValue;
+      }
+      return theValue;
+
+  });
+  app.directive('fileModel', ['$parse', function($parse) {
+      return {
+          restrict: 'A',
+          link: function(scope, element, attrs) {
+              var model = $parse(attrs.fileModel);
+              var modelSetter = model.assign;
+              element.bind('change', function() {
+                  scope.$apply(function() {
+                      modelSetter(scope, element[0].files[0]);
+                  });
+              });
+          }
+      };
+  }]);
+  app.service('fileUpload', ['$http', '$rootScope', function($http, $rootScope, bookService) {
+
+      this.uploadFileToUrl = function(file, uploadUrl, id, name) {
+          var fd = new FormData();
+          var fname = name + id;
+          // alert("sent"+fname);
+          fd.append('fname', fname);
+          fd.append('file', file);
+        
+       
+          console.log(fd);
+          $http.post(uploadUrl, fd, {
+                  transformRequest: angular.identity,
+                  headers: {
+                      'Content-Type': undefined
+                  }
+              })
+              .success(function(data, status, headers, config) {
+                  $rootScope.data = data;
+                 // alert("return" + data);
+                   console.log(data);
+                  // alert( $rootScope.data);
+              })
+              .error(function() {});
+      }
+
+
+  }]);
+  app.service("uploadService", function($http, $q) {
+
+      return ({
+          upload: upload
+      });
+
+      function upload(file) {
+          var upl = $http({
+              method: 'POST',
+              url: 'http://jsonplaceholder.typicode.com/posts', // /api/upload
+              headers: {
+                  'Content-Type': 'multipart/form-data'
+              },
+              data: {
+                  upload: file
+              },
+              transformRequest: function(data, headersGetter) {
+                  var formData = new FormData();
+                  angular.forEach(data, function(value, key) {
+                      formData.append(key, value);
+                  });
+
+                  var headers = headersGetter();
+                  delete headers['Content-Type'];
+
+                  return formData;
+              }
+          });
+          return upl.then(handleSuccess, handleError);
+
+      } // End upload function
+
+      // ---
+      // PRIVATE METHODS.
+      // ---
+
+      function handleError(response, data) {
+          if (!angular.isObject(response.data) || !response.data.message) {
+              return ($q.reject("An unknown error occurred."));
+          }
+
+          return ($q.reject(response.data.message));
+      }
+
+      function handleSuccess(response) {
+          return (response);
+      }
+
+  })
+  app.directive("fileinput", [function() {
+      return {
+          scope: {
+              fileinput: "=",
+              filepreview: "="
+          },
+          link: function(scope, element, attributes) {
+              element.bind("change", function(changeEvent) {
+                  scope.fileinput = changeEvent.target.files[0];
+                  var reader = new FileReader();
+                  reader.onload = function(loadEvent) {
+                      scope.$apply(function() {
+                          scope.filepreview = loadEvent.target.result;
+                      });
+                  }
+                  reader.readAsDataURL(scope.fileinput);
+              });
+          }
+      }
+  }]);
+  app.controller("reserve", function($scope, bookService, logService) {
+      $scope.books = bookService.getter();
+      $scope.today = new Date();
+      var currentBook;
+      var status = true;
+      var again = false;
+      $scope.student = { /*name:" "*/
+          issueDate: " ",
+          returnDate: "",
+          bookCount: 1
+      };
+      $scope.student.issueDate = new Date();
+      $scope.student.returnDate = new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000));
+      $scope.students = logService.getter();
+      $scope.reserveBook = function(student) {
+          $scope.books = bookService.getter();
+          $scope.books.forEach(function(entry) {
+              if (entry.id == currentBook.id) {
+                  if (entry.quantity == 0) {
+                      alert("No book available ");
+                  } else {
+                      student.bookIssued = currentBook.name;
+                      student.bookCount = 1;
+                      $scope.students.forEach(function(item) {
+                          if (item.name === student.name && item.bookIssued === student.bookIssued) {
+                              alert("this book is Already Issued to " + student.name);
+                              status = false;
+                              again = true;
+                          }
+                          if (item.name === student.name && item.bookCount == 2 && again == false) {
+                              again = true;
+                              alert("Limit exceeded");
+                              status = false;
+                          } else if (item.name === student.name && item.bookCount != 2 && status == true) {
+                              item.bookCount++;
+                              student.bookCount = item.bookCount;
+                          }
+                      });
+                      if (status == true) {
+                          logService.setter(angular.copy(student));
+                          entry.quantity--;
+                          alert("book is reserved to " + student.name + " and remaining quantity is  " + entry.quantity);
+                      }
+                      again = false;
+                      status = true;
+                      student.name = "";
+                  }
+              }
+          });
+      }
+      $scope.passModal = function(book) {
+          currentBook = book;
+      }
+  });
+
+  app.controller("add", function(fileUpload, bookService, $scope, $rootScope, uploadService) {
+      // $scope.path="/images/"+$scope.myFile.name;
+      $scope.books = bookService.getter();
+      $rootScope.show = false;
+      $rootScope.msg = "";
+
+      var status = false;
+      $scope.submit = "submit";
+      $scope.book = {
+          name: " ",
+          quantity: 1
+      };
+      $scope.emptyForm = function(book) {
+          book.name = "";
+          book.author = "";
+          book.isbnNo = "";
+          book.publisher = "";
+          book.quantity = 1;
+      }
+
+      $scope.updateTable = function(item, book) {
+          console.log("item" + item.name);
+ 
+          $scope.submit = "update";
+          $scope.filepreview = item.image;
+          if(item.image==undefined){ 
+             $("#file").val('');
+             $scope.filepreview = '#';
+                }
+          this.book.name = item.name;
+          $scope.book.id = item.id;
+          $scope.book.author = item.author;
+          $scope.book.isbnNo = item.isbnNo;
+          $scope.book.publisher = item.publisher;
+          $scope.book.quantity = item.quantity;
+
+      }
+      var checkBook = function(book) {
+          $scope.books.forEach(function(entry) {
+              if (entry.name === book.name && entry.author === book.author && entry.publisher === book.publisher) {
+                  entry.quantity += book.quantity;
+                  //  console.log(book.name ,entry.name);
+                  status = true;
+              }
+          });
+      }
+      $scope.updateBook = function(book) {
+
+          $scope.books.forEach(function(entry) {
+              if (entry.id == book.id) {
+                  entry.name = book.name;
+                  entry.author = book.author;
+                  entry.isbnNo = book.isbnNo;
+                  entry.publisher = book.publisher;
+                  entry.quantity = book.quantity;
+
+                 $scope.uploadFile(book.id, book.name);
+ 
+                  if($scope.myFile!=undefined){
+                  alert("here");
+                  entry.image = '' ;
+                  entry.image = "/images/" + book.name + book.id ;
+                      }
+                
+                  $scope.submit = "submit";
+                  $rootScope.show = true;
+                  $rootScope.classMsg = "success"
+                  $rootScope.msg = "updated Id# " + entry.id;
+                  alert("updated Id# " + entry.id);
+                   $("#file").val('');
+                  $scope.emptyForm(book);
+              }
+          });
+          $scope.myFile = null;
+          $scope.filepreview = "#";
+      }
+      $scope.addBook = function(book) {
+          if ($scope.submit === "submit") {
+              checkBook(angular.copy(book));
+              if (!status) {
+                  $scope.books = bookService.getter();
+                  var id = ($scope.books[$scope.books.length - 1].id);
+                  id++;
+                  $scope.uploadFile(id, book.name);
+                  if($scope.myFile!=undefined){
+             //     var ext = $scope.myFile.name.split('.').pop();
+                  book.image = "/images/" + book.name + id ;
+                  console.log(book.image);}
+                  bookService.setter(angular.copy(book));
+                  $scope.books = bookService.getter();
+                  $scope.myFile = null;
+                  $scope.filepreview = "#";
+                  $scope.emptyForm(book);
+
+              } else {
+                  status = false;
+                  $rootScope.show = true;
+                  $rootScope.classMsg = "success"
+                  $rootScope.msg = " Book already exists but Quantity is incremented";
+                  // alert("Book already exists but Quantity is incremented");
+                  $("#file").val('');
+                  $scope.emptyForm(book);
+              }
+          } else {
+              $scope.updateBook(book);
+          }
+
+      }
+      $scope.uploadFile = function(id, name) {
+          
+          var file = $scope.myFile;
+          var uploadUrl = "/uploadFile";
+          if($scope.myFile!=undefined)
+          fileUpload.uploadFileToUrl(file, uploadUrl, id, name);}
+      
+      $scope.$watch('file', function(newfile, oldfile) {
+          if (angular.equals(newfile, oldfile)) {
+              return;
+          }
+
+          uploadService.upload(newfile).then(function(res) {
+
+              console.log("result", res);
+          })
+      });
+  });
+  app.controller("search", function($scope, bookService) {
+
+      $scope.books = bookService.getter();
+  });
+  app.controller("log", function($scope, logService) {
+
+      $scope.students = logService.getter();
+  });
+  app.config(function($routeProvider) {
+      $routeProvider
+          .when("/", {
+              templateUrl: "add.html",
+              controller: "add"
+          })
+          .when("/reserve", {
+              templateUrl: "reserve.html",
+              controller: "reserve"
+          })
+          .when("/add", {
+              templateUrl: "add.html",
+              controller: "add"
+          })
+          .when("/search", {
+              templateUrl: "search.html",
+              controller: "search"
+          })
+          .when("/studentLog", {
+              templateUrl: "log.html",
+              controller: "log"
+          });
+
+  });
+  app.run(['$rootScope', '$location', function($rootScope, $location) {
+
+      var path = function() {
+          return $location.path();
+      };
+      $rootScope.$watch(path, function(newVal, oldVal) {
+          $rootScope.activetab = newVal;
+      });
+  }]);
+app.filter('randomSrc', function () {
+    return function (input) {
+        if (input)
+            return input + '?r=' + Math.round(Math.random() * 999999);
+    }
+})
+  // app.filter('filterBy', function() {
+  //     return function(array, query) {
+  //         var parts = query && query.trim().split(/\s+/),
+  //             keys = Object.keys(array[0]);
+  //         if (!parts || !parts.length) return array;
+  //         return array.filter(function(obj) {
+  //             return parts.every(function(part) {
+  //                 return keys.some(function(key) {
+  //                     return String(obj[key]).toLowerCase().indexOf(part.toLowerCase()) > -1;
+  //                 });
+  //             });
+  //         });
+  //     };
+  // });

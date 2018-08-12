@@ -1,0 +1,104 @@
+ .mainBar{
+background-color:DC572E !important;
+color:white !important;
+ }
+.whiteFont{
+  color:white !important;
+}
+.purpleBack {
+background-color:DC572E !important;
+}
+.blackFont{
+  color:black !important;
+}
+.whiteBack {
+background-color:white !important;
+}
+.navbar-default .navbar-nav>.active>a{
+  background-color:white !important;
+  color:black !important;
+}
+.input-group-addon{
+  background-color:DC572E !important;
+    color:white !important;
+        border: none !important;
+}
+th {
+    background-color: DC572E !important;
+    color: white;
+}
+.book-form{
+  width: 55% !important;
+  margin-left: 2% !important;
+  margin-top: 0%;
+}
+.myhead{
+    margin-left: 39%!important;
+}
+.mytable{
+  margin-left:2% !important;
+  margin-right:2% !important;
+  margin-top: 20px;
+}
+.mytable.th{
+  font-size:13px;
+}
+#search{
+height: 35px;
+width: 447px;
+}
+.search{
+margin-left:30% !important;
+margin-top: 4%;
+margin-bottom: 3%;
+}
+
+.myrow{
+  width: 50%;
+  background-color: rgba(128, 125, 125, 0.14);
+  margin-left: 24% !important;
+}
+.imageUpload{
+  margin-top: -30px;
+  margin-left: 62px;
+}
+.uploadFile{
+  margin-right: 25%;
+}
+.fileChooser{
+  width: 61%;
+  margin-left: 48px;
+  margin-top: 32px;
+  height: 35px;}
+.myImage{
+  margin-left: 38px;
+}
+.changewidth1 {
+width:131% !important;
+
+}
+.changewidth {
+width: 110% !important;
+
+}
+.myModal{
+  margin-top: 6%;
+}
+
+.myHeader{
+  background-color: DC572E !important;
+  color: white;
+}
+.redclr{
+  background-color: red !important;
+}
+.myalert{
+  margin-top:1px;
+  margin-right: :5%;
+  width:40%;
+}
+.myalert2{
+  margin-top:-3%;
+  margin-left:5%;
+  width:40%;
+}

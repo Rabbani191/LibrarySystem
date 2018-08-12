@@ -1,0 +1,39 @@
+
+<html>
+<body ng-app="myapp">
+  <head>
+  <title>Library Managment System</title>
+  <link rel="stylesheet" type="text/css" href="myStyle.css" />
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-route.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-filter/0.5.16/angular-filter.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+</head>
+<nav class="navbar navbar-default mainBar">
+<div  class="container-fluid" >
+  <div class="navbar-header">
+        <a class=" whiteFont navbar-brand" href="#/">Library Managemnet System</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <!-- <li  ng-class="{active: activetab=='/'}"><a class="whiteFont" ng-href="#/">Home</a></li> -->
+        <li ng-class="{active: activetab=='/'}"><a class="whiteFont" ng-href="#/">Add Book</a></li>
+        <li ng-class="{active: activetab=='/search'}"><a class="whiteFont" ng-href="#search">Search</a></li>
+        <li ng-class="{active: activetab=='/reserve'}" ><a class="whiteFont" ng-href="#reserve">Reserve</a></li>
+        <li ng-class="{active: activetab=='/studentLog'}"><a class="whiteFont" ng-href="#studentLog">Logs</a></li>
+      </ul>
+      <div ng-class="{'alert alert-success alert-dismissible': classMsg =='success' ,'alert alert-info alert-dismissible': classMsg =='info','alert alert-danger alert-dismissible': classMsg =='danger','alert alert-warning alert-dismissible': classMsg =='warning'}" class="pull-right myalert" role="alert" ng-show="show">
+      <i ><span ng-click="show=false" class="glyphicon glyphicon-remove pull-right"></span></i>
+        <strong>{{msg}}</strong>
+      </div>
+</nav>
+  <div ng-view></div>
+  </div>
+
+<script src="app.js"></script>
+<body>
+<html>
